@@ -1,0 +1,2641 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <meta
+    name="description"
+    content="Démonstrateur interactif de l’univers numérique MEYDEN OS : plateformes, partenaires, cycle utilisateur et simulation de contribution."
+  />
+
+  <title>MEYDEN OS — Simulation de l’écosystème numérique</title>
+
+  <style>
+    :root {
+      --bg: #080b10;
+      --panel: #111722;
+      --panel-2: #161e2b;
+      --line: #2b3748;
+      --text: #f4f7fb;
+      --muted: #9facbd;
+      --gold: #e0b85a;
+      --green: #41d39d;
+      --red: #ff6b6b;
+      --blue: #60a5fa;
+      --purple: #a78bfa;
+      --orange: #fb923c;
+      --shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
+
+      background:
+        radial-gradient(
+          circle at 12% 0%,
+          rgba(224, 184, 90, 0.12),
+          transparent 30%
+        ),
+        radial-gradient(
+          circle at 90% 15%,
+          rgba(96, 165, 250, 0.1),
+          transparent 30%
+        ),
+        var(--bg);
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      touch-action: manipulation;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    aside {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 24px 18px;
+      overflow: auto;
+      border-right: 1px solid var(--line);
+      background: rgba(8, 11, 16, 0.92);
+      backdrop-filter: blur(16px);
+      z-index: 10;
+    }
+
+    .brand {
+      padding: 10px 10px 22px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand .eyebrow {
+      color: var(--gold);
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+    }
+
+    .brand h1 {
+      margin: 0.35rem 0 0.2rem;
+      font-size: 1.45rem;
+    }
+
+    .brand p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+
+    nav {
+      display: grid;
+      gap: 8px;
+    }
+
+    nav button {
+      width: 100%;
+      padding: 12px 14px;
+      color: var(--muted);
+      text-align: left;
+      cursor: pointer;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      background: transparent;
+      transition:
+        color 0.2s,
+        background 0.2s,
+        border-color 0.2s;
+    }
+
+    nav button:hover,
+    nav button.active {
+      color: var(--text);
+      border-color: var(--line);
+      background: var(--panel);
+    }
+
+    .side-note {
+      margin-top: 18px;
+      padding: 14px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--panel);
+    }
+
+    main {
+      width: 100%;
+      max-width: 1600px;
+      padding: 28px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .topbar h2 {
+      margin: 0;
+      font-size: clamp(1.8rem, 3vw, 3.4rem);
+      line-height: 1;
+    }
+
+    .topbar p {
+      max-width: 850px;
+      margin: 0.7rem 0 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      color: var(--gold);
+      white-space: nowrap;
+      border: 1px solid rgba(224, 184, 90, 0.35);
+      border-radius: 999px;
+      background: rgba(224, 184, 90, 0.08);
+    }
+
+    section {
+      display: none;
+      animation: fade 0.25s ease;
+    }
+
+    section.active {
+      display: block;
+    }
+
+    @keyframes fade {
+      from {
+        opacity: 0.3;
+        transform: translateY(6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .grid.cols-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid.cols-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .grid.cols-4 {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .card {
+      padding: 20px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(
+          180deg,
+          rgba(22, 30, 43, 0.96),
+          rgba(17, 23, 34, 0.96)
+        );
+      box-shadow: var(--shadow);
+    }
+
+    .card h3,
+    .card h4 {
+      margin-top: 0;
+    }
+
+    .card p {
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .metric {
+      font-size: 2rem;
+      font-weight: 850;
+      letter-spacing: -0.03em;
+    }
+
+    .metric small {
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .label {
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .accent {
+      color: var(--gold);
+    }
+
+    .good {
+      color: var(--green);
+    }
+
+    .warn {
+      color: var(--orange);
+    }
+
+    .danger {
+      color: var(--red);
+    }
+
+    .blue {
+      color: var(--blue);
+    }
+
+    .purple {
+      color: var(--purple);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      align-items: stretch;
+      gap: 18px;
+      min-height: 380px;
+    }
+
+    .hero-main {
+      position: relative;
+      padding: 34px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background:
+        linear-gradient(
+          135deg,
+          rgba(224, 184, 90, 0.12),
+          rgba(96, 165, 250, 0.08)
+        ),
+        var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-main::after {
+      position: absolute;
+      right: -24px;
+      bottom: -42px;
+      content: "MEYDEN";
+      color: rgba(255, 255, 255, 0.025);
+      font-size: 9rem;
+      font-weight: 900;
+      letter-spacing: -0.08em;
+      pointer-events: none;
+    }
+
+    .hero-main h3 {
+      margin: 14px 0 20px;
+      font-size: clamp(2rem, 4vw, 4.6rem);
+      line-height: 0.95;
+    }
+
+    .hero-main p {
+      max-width: 760px;
+      color: #cbd5e1;
+      font-size: 1.08rem;
+    }
+
+    .hero-side {
+      display: grid;
+      gap: 16px;
+    }
+
+    .module-map {
+      position: relative;
+      min-height: 620px;
+      padding: 30px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background:
+        radial-gradient(
+          circle at center,
+          rgba(224, 184, 90, 0.14),
+          transparent 18%
+        ),
+        linear-gradient(180deg, #0d131d, #0b1017);
+    }
+
+    .core {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      z-index: 3;
+      display: grid;
+      place-items: center;
+      width: 190px;
+      height: 190px;
+      padding: 20px;
+      text-align: center;
+      border: 2px solid var(--gold);
+      border-radius: 50%;
+      background:
+        radial-gradient(
+          circle,
+          rgba(224, 184, 90, 0.22),
+          #111722 68%
+        );
+      box-shadow: 0 0 70px rgba(224, 184, 90, 0.18);
+      transform: translate(-50%, -50%);
+    }
+
+    .core strong {
+      font-size: 1.4rem;
+    }
+
+    .node {
+      position: absolute;
+      z-index: 2;
+      width: 170px;
+      min-height: 94px;
+      padding: 14px;
+      cursor: pointer;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(22, 30, 43, 0.95);
+      transition:
+        transform 0.2s,
+        border-color 0.2s;
+    }
+
+    .node:hover {
+      border-color: var(--gold);
+      transform: translateY(-4px);
+    }
+
+    .node strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .node span {
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .node.n1 {
+      top: 8%;
+      left: 4%;
+    }
+
+    .node.n2 {
+      top: 8%;
+      right: 4%;
+    }
+
+    .node.n3 {
+      bottom: 8%;
+      left: 4%;
+    }
+
+    .node.n4 {
+      right: 4%;
+      bottom: 8%;
+    }
+
+    .node.n5 {
+      top: 4%;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .node.n5:hover {
+      transform: translateX(-50%) translateY(-4px);
+    }
+
+    .node.n6 {
+      bottom: 4%;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .node.n6:hover {
+      transform: translateX(-50%) translateY(-4px);
+    }
+
+    .node.n7 {
+      top: 50%;
+      left: 3%;
+      transform: translateY(-50%);
+    }
+
+    .node.n7:hover {
+      transform: translateY(-54%);
+    }
+
+    .node.n8 {
+      top: 50%;
+      right: 3%;
+      transform: translateY(-50%);
+    }
+
+    .node.n8:hover {
+      transform: translateY(-54%);
+    }
+
+    .flow-row {
+      display: flex;
+      align-items: stretch;
+      gap: 10px;
+      padding-bottom: 8px;
+      overflow-x: auto;
+    }
+
+    .flow-step {
+      flex: 1;
+      min-width: 180px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--panel);
+      transition:
+        border-color 0.25s,
+        box-shadow 0.25s;
+    }
+
+    .flow-step .num {
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      margin-bottom: 12px;
+      color: var(--gold);
+      font-weight: 800;
+      border-radius: 50%;
+      background: rgba(224, 184, 90, 0.12);
+    }
+
+    .flow-arrow {
+      display: grid;
+      place-items: center;
+      color: var(--gold);
+      font-size: 1.5rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    label {
+      display: grid;
+      gap: 8px;
+      color: #d7dee8;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 12px 13px;
+      color: var(--text);
+      outline: none;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #0c121b;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(224, 184, 90, 0.1);
+    }
+
+    .range-line {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 100px;
+      align-items: center;
+      gap: 10px;
+    }
+
+    input[type="range"] {
+      padding: 0;
+    }
+
+    output {
+      padding: 8px 10px;
+      text-align: center;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #0c121b;
+    }
+
+    .btn {
+      padding: 12px 16px;
+      color: var(--text);
+      font-weight: 800;
+      cursor: pointer;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel-2);
+    }
+
+    .btn.primary {
+      color: #111;
+      border-color: transparent;
+      background:
+        linear-gradient(
+          135deg,
+          #d7aa45,
+          #f3d989
+        );
+    }
+
+    .btn.ghost:hover {
+      border-color: var(--gold);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    td {
+      font-size: 0.92rem;
+    }
+
+    .bar {
+      height: 12px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #0b1119;
+    }
+
+    .bar > span {
+      display: block;
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background:
+        linear-gradient(
+          90deg,
+          var(--gold),
+          #ffe7a1
+        );
+      transition: width 0.35s;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 12px;
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr);
+      align-items: start;
+      gap: 14px;
+    }
+
+    .timeline-item .dot {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      color: var(--blue);
+      font-weight: 900;
+      border-radius: 50%;
+      background: rgba(96, 165, 250, 0.14);
+    }
+
+    .status {
+      display: inline-flex;
+      padding: 5px 9px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+    }
+
+    .status.ok {
+      color: var(--green);
+      background: rgba(65, 211, 157, 0.08);
+    }
+
+    .status.plan {
+      color: var(--gold);
+      background: rgba(224, 184, 90, 0.08);
+    }
+
+    .status.ext {
+      color: var(--blue);
+      background: rgba(96, 165, 250, 0.08);
+    }
+
+    .callout {
+      padding: 16px;
+      color: #e8edf4;
+      line-height: 1.55;
+      border-left: 4px solid var(--gold);
+      border-radius: 10px;
+      background: rgba(224, 184, 90, 0.08);
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .footer-note {
+      margin-top: 20px;
+      color: var(--muted);
+      font-size: 0.8rem;
+      line-height: 1.5;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      display: none;
+      place-items: center;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.72);
+    }
+
+    .modal.open {
+      display: grid;
+    }
+
+    .modal-box {
+      width: 100%;
+      max-width: 720px;
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .close {
+      float: right;
+      padding: 0 6px;
+      color: var(--muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+      border: 0;
+      background: transparent;
+    }
+
+    @media (max-width: 1100px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      aside {
+        position: relative;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      nav {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      nav button {
+        text-align: center;
+      }
+
+      main {
+        padding: 18px;
+      }
+
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .grid.cols-4 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .grid.cols-3 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 760px) {
+      nav {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .grid.cols-2,
+      .grid.cols-3,
+      .grid.cols-4,
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .module-map {
+        display: grid;
+        min-height: 0;
+        padding: 18px;
+      }
+
+      .core,
+      .node,
+      .node.n1,
+      .node.n2,
+      .node.n3,
+      .node.n4,
+      .node.n5,
+      .node.n6,
+      .node.n7,
+      .node.n8 {
+        position: relative;
+        inset: auto;
+        width: 100%;
+        min-height: auto;
+        margin: 8px 0;
+        transform: none;
+      }
+
+      .core {
+        width: 180px;
+        height: 180px;
+        margin: 18px auto;
+        border-radius: 50%;
+      }
+
+      .node:hover,
+      .node.n5:hover,
+      .node.n6:hover,
+      .node.n7:hover,
+      .node.n8:hover {
+        transform: translateY(-3px);
+      }
+
+      .flow-row {
+        display: grid;
+        overflow: visible;
+      }
+
+      .flow-step {
+        min-width: 0;
+      }
+
+      .flow-arrow {
+        transform: rotate(90deg);
+      }
+
+      .hero-main {
+        padding: 24px;
+      }
+
+      .hero-main::after {
+        font-size: 6rem;
+      }
+
+      th,
+      td {
+        min-width: 130px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <aside>
+      <div class="brand">
+        <div class="eyebrow">DOCUMENT INTERNE TESTABLE</div>
+
+        <h1>MEYDEN OS</h1>
+
+        <p>
+          Visualisation, simulation financière et parcours complet de
+          l’écosystème numérique.
+        </p>
+      </div>
+
+      <nav id="nav">
+        <button class="active" data-section="overview">
+          Vue d’ensemble
+        </button>
+
+        <button data-section="ecosystem">
+          Carte de l’écosystème
+        </button>
+
+        <button data-section="modules">
+          Modules et partenaires
+        </button>
+
+        <button data-section="cycle">
+          Cycle complet
+        </button>
+
+        <button data-section="simulator">
+          Simulation de contribution
+        </button>
+
+        <button data-section="capacity">
+          Capacité et hébergement
+        </button>
+
+        <button data-section="financial">
+          Modèle financier
+        </button>
+
+        <button data-section="roadmap">
+          Plan de développement
+        </button>
+      </nav>
+
+      <div class="side-note">
+        <strong>Important</strong>
+        <br />
+
+        Cette démonstration illustre un modèle de contribution aux frais
+        d’infrastructure. Elle ne crée aucune part de propriété, aucun rendement
+        garanti et aucun droit sur Meyden ou ses partenaires.
+      </div>
+    </aside>
+
+    <main>
+      <div class="topbar">
+        <div>
+          <h2>Univers numérique Meyden</h2>
+
+          <p>
+            Une démonstration visuelle permettant de comprendre comment les
+            plateformes, les partenaires, les utilisateurs, les revenus et les
+            contributions d’infrastructure circulent dans un seul système.
+          </p>
+        </div>
+
+        <div class="badge">
+          Prototype interactif • 2026
+        </div>
+      </div>
+
+      <!-- VUE D’ENSEMBLE -->
+
+      <section id="overview" class="active">
+        <div class="hero">
+          <div class="hero-main">
+            <div class="label accent">
+              Finalité
+            </div>
+
+            <h3>
+              Un seul écosystème.
+              <br />
+              Plusieurs moteurs.
+            </h3>
+
+            <p>
+              MEYDEN OS centralise les comptes, abonnements, contenus, projets,
+              partenaires, événements, statistiques et retombées. Les
+              plateformes spécialisées se connectent à ce noyau afin de
+              transformer une relation ou une idée en contenu, en diffusion,
+              en occasion professionnelle et en revenu mesurable.
+            </p>
+
+            <div class="actions">
+              <button class="btn primary" onclick="goTo('cycle')">
+                Parcourir un cycle complet
+              </button>
+
+              <button class="btn ghost" onclick="goTo('simulator')">
+                Simuler une contribution
+              </button>
+            </div>
+          </div>
+
+          <div class="hero-side">
+            <div class="card">
+              <div class="label">
+                Objectif utilisateur
+              </div>
+
+              <div class="metric">
+                1 500
+                <small>utilisateurs actifs visés</small>
+              </div>
+
+              <p>
+                Architecture conçue pour monter progressivement en charge,
+                avec sécurité, sauvegardes, surveillance et tests.
+              </p>
+            </div>
+
+            <div class="card">
+              <div class="label">
+                Modèle
+              </div>
+
+              <div class="metric">
+                Gratuit + Payant
+              </div>
+
+              <p>
+                Forfaits utilisateurs, créateurs, entreprises et partenaires
+                administrateurs.
+              </p>
+            </div>
+
+            <div class="card">
+              <div class="label">
+                Contrôle
+              </div>
+
+              <div class="metric good">
+                100 % Meyden
+              </div>
+
+              <p>
+                Marque, code, données, gouvernance et propriété intellectuelle
+                demeurent sous le contrôle de Meyden.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid cols-4" style="margin-top: 16px;">
+          <div class="card">
+            <div class="label">
+              Contenu
+            </div>
+
+            <div class="metric blue">
+              Créer
+            </div>
+
+            <p>
+              Audio, vidéo, articles, profils, projets et expériences.
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="label">
+              Diffusion
+            </div>
+
+            <div class="metric purple">
+              Distribuer
+            </div>
+
+            <p>
+              Monitor, Live Tool, Radio LP Web, L’Étiquette et partenaires.
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="label">
+              Conversion
+            </div>
+
+            <div class="metric accent">
+              Monétiser
+            </div>
+
+            <p>
+              Abonnements, services, billets, licences et partenariats.
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="label">
+              Mesure
+            </div>
+
+            <div class="metric good">
+              Reconnaître
+            </div>
+
+            <p>
+              Statistiques, retombées, historique, valeur et réinvestissement.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- CARTE DE L’ÉCOSYSTÈME -->
+
+      <section id="ecosystem">
+        <div class="card">
+          <div class="label accent">
+            Carte interactive
+          </div>
+
+          <h3>
+            Cliquez sur un module pour comprendre son rôle
+          </h3>
+
+          <div class="module-map">
+            <div class="core">
+              <div>
+                <strong>MEYDEN OS</strong>
+                <br />
+
+                <span class="small">
+                  Comptes • données • abonnements • retombées
+                </span>
+              </div>
+            </div>
+
+            <div class="node n1" onclick="moduleInfo('monitor')">
+              <strong>Meyden Monitor</strong>
+
+              <span>
+                Diffusion, statistiques, Tuned On
+              </span>
+            </div>
+
+            <div class="node n2" onclick="moduleInfo('live')">
+              <strong>Live Tool / Owncast</strong>
+
+              <span>
+                Direct, billets, rediffusion
+              </span>
+            </div>
+
+            <div class="node n3" onclick="moduleInfo('crm')">
+              <strong>Natural CRM</strong>
+
+              <span>
+                Relations, qualification, suivis
+              </span>
+            </div>
+
+            <div class="node n4" onclick="moduleInfo('service')">
+              <strong>Service 360</strong>
+
+              <span>
+                Demandes, mandats, production
+              </span>
+            </div>
+
+            <div class="node n5" onclick="moduleInfo('pofino')">
+              <strong>Pofino</strong>
+
+              <span>
+                Entreprises, documents, opérations
+              </span>
+            </div>
+
+            <div class="node n6" onclick="moduleInfo('catalogue')">
+              <strong>Catalogue Meyden × Trovici</strong>
+
+              <span>
+                Services, talents, jumelage
+              </span>
+            </div>
+
+            <div class="node n7" onclick="moduleInfo('hedliner')">
+              <strong>Hedliner</strong>
+
+              <span>
+                Booking et occasions de scène
+              </span>
+            </div>
+
+            <div class="node n8" onclick="moduleInfo('radio')">
+              <strong>Radio LP Web</strong>
+
+              <span>
+                Diffusion média et émission
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MODULES -->
+
+      <section id="modules">
+        <div class="grid cols-3">
+          <div class="card">
+            <span class="status ok">
+              Propriété Meyden
+            </span>
+
+            <h3>Meyden Monitor</h3>
+
+            <p>
+              Organise la circulation des contenus, les profils, les
+              abonnements, Tuned On, les statistiques et la reconnaissance des
+              retombées.
+            </p>
+          </div>
+
+          <div class="card">
+            <span class="status ok">
+              Propriété Meyden
+            </span>
+
+            <h3>Meyden Live Tool</h3>
+
+            <p>
+              Interface de gestion du direct. Owncast assure le moteur vidéo;
+              le Live Tool organise les événements, les accès, les billets et
+              les rediffusions.
+            </p>
+          </div>
+
+          <div class="card">
+            <span class="status ok">
+              Propriété Meyden
+            </span>
+
+            <h3>Natural CRM</h3>
+
+            <p>
+              Mémoire relationnelle des artistes, fans, salles, médias,
+              entreprises, partenaires et commanditaires.
+            </p>
+          </div>
+
+          <div class="card">
+            <span class="status plan">
+              Partenariat
+            </span>
+
+            <h3>Service 360 × L’Étiquette</h3>
+
+            <p>
+              Transforme un besoin en diagnostic, soumission, production,
+              diffusion et suivi éditorial.
+            </p>
+          </div>
+
+          <div class="card">
+            <span class="status plan">
+              Partenariat
+            </span>
+
+            <h3>Catalogue × Trovici</h3>
+
+            <p>
+              Réunit services, expertises, artistes, entreprises, offres et
+              possibilités de jumelage.
+            </p>
+          </div>
+
+          <div class="card">
+            <span class="status ok">
+              Module spécialisé
+            </span>
+
+            <h3>Pofino</h3>
+
+            <p>
+              Plateforme d’entreprise destinée aux opérations, documents,
+              cartographie, rapports, photos et comptes administratifs.
+            </p>
+          </div>
+
+          <div class="card">
+            <span class="status ext">
+              Externe intégré
+            </span>
+
+            <h3>Hedliner</h3>
+
+            <p>
+              Passerelle vers les salles, festivals, programmateurs,
+              candidatures et occasions de booking.
+            </p>
+          </div>
+
+          <div class="card">
+            <span class="status ext">
+              Externe intégré
+            </span>
+
+            <h3>Radio LP Web</h3>
+
+            <p>
+              Passerelle média pour les entrevues, chroniques, émissions,
+              diffusion musicale et développement d’audience.
+            </p>
+          </div>
+
+          <div class="card">
+            <span class="status ext">
+              Moteur libre
+            </span>
+
+            <h3>Owncast</h3>
+
+            <p>
+              Logiciel de diffusion indépendant. Les coûts proviennent surtout
+              du serveur, du stockage et de la bande passante.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- CYCLE COMPLET -->
+
+      <section id="cycle">
+        <div class="card">
+          <div class="label accent">
+            Simulation guidée
+          </div>
+
+          <h3>
+            Cycle complet : de la découverte jusqu’aux retombées
+          </h3>
+
+          <div class="flow-row" id="flow">
+            <div class="flow-step">
+              <div class="num">1</div>
+
+              <strong>Entrée</strong>
+
+              <p>
+                Un artiste, une entreprise ou un utilisateur entre dans
+                l’écosystème.
+              </p>
+            </div>
+
+            <div class="flow-arrow">
+              →
+            </div>
+
+            <div class="flow-step">
+              <div class="num">2</div>
+
+              <strong>Qualification</strong>
+
+              <p>
+                Le CRM classe le profil, ses besoins, ses contacts et ses
+                objectifs.
+              </p>
+            </div>
+
+            <div class="flow-arrow">
+              →
+            </div>
+
+            <div class="flow-step">
+              <div class="num">3</div>
+
+              <strong>Service 360</strong>
+
+              <p>
+                Le besoin devient une offre, un mandat, un projet ou un
+                forfait.
+              </p>
+            </div>
+
+            <div class="flow-arrow">
+              →
+            </div>
+
+            <div class="flow-step">
+              <div class="num">4</div>
+
+              <strong>Production</strong>
+
+              <p>
+                Le contenu, le service ou l’outil est développé avec les
+                partenaires.
+              </p>
+            </div>
+
+            <div class="flow-arrow">
+              →
+            </div>
+
+            <div class="flow-step">
+              <div class="num">5</div>
+
+              <strong>Diffusion</strong>
+
+              <p>
+                Monitor, Live Tool, Radio LP Web, L’Étiquette et Hedliner
+                activent la circulation.
+              </p>
+            </div>
+
+            <div class="flow-arrow">
+              →
+            </div>
+
+            <div class="flow-step">
+              <div class="num">6</div>
+
+              <strong>Conversion</strong>
+
+              <p>
+                Abonnement, billet, service, booking, licence ou partenariat.
+              </p>
+            </div>
+
+            <div class="flow-arrow">
+              →
+            </div>
+
+            <div class="flow-step">
+              <div class="num">7</div>
+
+              <strong>Mesure</strong>
+
+              <p>
+                Les revenus et retombées sont enregistrés, attribués et
+                réutilisés.
+              </p>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn primary" onclick="runCycle()">
+              Lancer la simulation
+            </button>
+
+            <button class="btn ghost" onclick="resetCycle()">
+              Réinitialiser
+            </button>
+          </div>
+        </div>
+
+        <div class="grid cols-2" style="margin-top: 16px;">
+          <div class="card">
+            <h3 id="cycleTitle">
+              Prêt à commencer
+            </h3>
+
+            <p id="cycleText">
+              Cliquez sur « Lancer la simulation » pour voir un cycle réaliste
+              se dérouler étape par étape.
+            </p>
+
+            <div class="bar">
+              <span id="cycleBar"></span>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="label">
+              Exemple de résultat
+            </div>
+
+            <div class="table-wrapper">
+              <table>
+                <tbody>
+                  <tr>
+                    <td>Nouvel artiste qualifié</td>
+                    <td class="good">Oui</td>
+                  </tr>
+
+                  <tr>
+                    <td>Mandat Service 360</td>
+                    <td>1 500 $</td>
+                  </tr>
+
+                  <tr>
+                    <td>Billets numériques</td>
+                    <td>480 $</td>
+                  </tr>
+
+                  <tr>
+                    <td>Abonnements générés</td>
+                    <td>14</td>
+                  </tr>
+
+                  <tr>
+                    <td>Occasion Hedliner</td>
+                    <td class="blue">1 booking</td>
+                  </tr>
+
+                  <tr>
+                    <td>Contenu réutilisable</td>
+                    <td>9 extraits</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SIMULATEUR -->
+
+      <section id="simulator">
+        <div class="grid cols-2">
+          <div class="card">
+            <div class="label accent">
+              Simulation financière
+            </div>
+
+            <h3>
+              Contributions de Luc et David
+            </h3>
+
+            <p>
+              Le calcul porte uniquement sur les revenus admissibles de
+              l’infrastructure. Il ne transfère aucun droit de propriété sur
+              Meyden.
+            </p>
+
+            <div class="form-grid">
+              <label>
+                Contribution mensuelle de Luc
+
+                <input
+                  id="lucMonthly"
+                  type="number"
+                  min="0"
+                  step="1"
+                  value="75"
+                />
+              </label>
+
+              <label>
+                Contribution mensuelle de David
+
+                <input
+                  id="davidMonthly"
+                  type="number"
+                  min="0"
+                  step="1"
+                  value="75"
+                />
+              </label>
+
+              <label>
+                Durée des contributions en mois
+
+                <input
+                  id="months"
+                  type="number"
+                  min="1"
+                  max="60"
+                  step="1"
+                  value="12"
+                />
+              </label>
+
+              <label>
+                Contribution de Meyden ou des partenaires
+
+                <input
+                  id="meydenMonthly"
+                  type="number"
+                  min="0"
+                  step="1"
+                  value="200"
+                />
+              </label>
+
+              <label>
+                Revenus bruts mensuels des plateformes
+
+                <input
+                  id="grossRevenue"
+                  type="number"
+                  min="0"
+                  step="1"
+                  value="3000"
+                />
+              </label>
+
+              <label>
+                Coûts directs mensuels
+
+                <input
+                  id="directCosts"
+                  type="number"
+                  min="0"
+                  step="1"
+                  value="1200"
+                />
+              </label>
+
+              <label>
+                Enveloppe des contributeurs
+
+                <div class="range-line">
+                  <input
+                    id="poolPercent"
+                    type="range"
+                    min="1"
+                    max="40"
+                    value="20"
+                    oninput="updatePoolOutput()"
+                  />
+
+                  <output id="poolOut">
+                    20 %
+                  </output>
+                </div>
+              </label>
+
+              <label>
+                Plafond total payable
+
+                <select id="capMultiple">
+                  <option value="1">
+                    100 % des contributions
+                  </option>
+
+                  <option value="1.25">
+                    125 % des contributions
+                  </option>
+
+                  <option value="1.5" selected>
+                    150 % des contributions
+                  </option>
+
+                  <option value="2">
+                    200 % des contributions
+                  </option>
+                </select>
+              </label>
+            </div>
+
+            <div class="actions">
+              <button class="btn primary" onclick="calculateInvestment()">
+                Calculer la simulation
+              </button>
+
+              <button
+                class="btn ghost"
+                onclick="loadScenario('conservative')"
+              >
+                Scénario prudent
+              </button>
+
+              <button
+                class="btn ghost"
+                onclick="loadScenario('growth')"
+              >
+                Scénario croissance
+              </button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="label">
+              Résultats
+            </div>
+
+            <div class="grid cols-2">
+              <div>
+                <div class="small">
+                  Contribution totale Luc
+                </div>
+
+                <div class="metric" id="lucTotal">
+                  900 $
+                </div>
+              </div>
+
+              <div>
+                <div class="small">
+                  Contribution totale David
+                </div>
+
+                <div class="metric" id="davidTotal">
+                  900 $
+                </div>
+              </div>
+
+              <div>
+                <div class="small">
+                  Revenu net mensuel
+                </div>
+
+                <div class="metric good" id="netMonthly">
+                  1 800 $
+                </div>
+              </div>
+
+              <div>
+                <div class="small">
+                  Enveloppe mensuelle
+                </div>
+
+                <div class="metric accent" id="poolMonthly">
+                  360 $
+                </div>
+              </div>
+            </div>
+
+            <hr
+              style="
+                margin: 18px 0;
+                border: 0;
+                border-top: 1px solid var(--line);
+              "
+            />
+
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Participant</th>
+                    <th>Prorata</th>
+                    <th>Montant potentiel</th>
+                    <th>Plafond</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr>
+                    <td>Luc</td>
+                    <td id="lucShare">50 %</td>
+                    <td id="lucReturn">1 350 $</td>
+                    <td id="lucCap">1 350 $</td>
+                  </tr>
+
+                  <tr>
+                    <td>David</td>
+                    <td id="davidShare">50 %</td>
+                    <td id="davidReturn">1 350 $</td>
+                    <td id="davidCap">1 350 $</td>
+                  </tr>
+
+                  <tr>
+                    <td>Meyden</td>
+                    <td>Contrôle et exploitation</td>
+                    <td id="meydenKeep">18 900 $</td>
+                    <td>Non plafonné</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div
+              class="callout"
+              id="simConclusion"
+              style="margin-top: 16px;"
+            >
+              La simulation doit être recalculée selon les vraies factures et
+              les revenus réellement encaissés.
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top: 16px;">
+          <h3>
+            Lecture du modèle
+          </h3>
+
+          <div class="grid cols-3">
+            <div>
+              <div class="label">
+                1. Contribution
+              </div>
+
+              <p>
+                Luc et David couvrent une partie des coûts d’infrastructure
+                approuvés.
+              </p>
+            </div>
+
+            <div>
+              <div class="label">
+                2. Revenus admissibles
+              </div>
+
+              <p>
+                Seuls les revenus directement générés par les plateformes
+                financées entrent dans le calcul.
+              </p>
+            </div>
+
+            <div>
+              <div class="label">
+                3. Limite
+              </div>
+
+              <p>
+                Le montant total payable est plafonné et n’accorde aucune part
+                permanente dans Meyden.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CAPACITÉ -->
+
+      <section id="capacity">
+        <div class="grid cols-3">
+          <div class="card">
+            <div class="label">
+              Phase 1
+            </div>
+
+            <div class="metric">
+              150–250 $
+            </div>
+
+            <p>
+              Prototypes, tests, faible trafic et environnement de
+              développement.
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="label">
+              Phase 2
+            </div>
+
+            <div class="metric">
+              300–700 $
+            </div>
+
+            <p>
+              Première production commerciale, comptes, paiements, base de
+              données et sauvegardes.
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="label">
+              Phase 3
+            </div>
+
+            <div class="metric">
+              700–1 800 $
+            </div>
+
+            <p>
+              Croissance, contenu, utilisateurs actifs, surveillance et
+              automatisation.
+            </p>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top: 16px;">
+          <h3>
+            Dimensionnement visé
+          </h3>
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Besoin</th>
+                  <th>Architecture</th>
+                  <th>Attention</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr>
+                  <td>1 500 comptes inscrits</td>
+                  <td>Base de données standard</td>
+                  <td>Relativement simple</td>
+                </tr>
+
+                <tr>
+                  <td>1 500 utilisateurs actifs mensuels</td>
+                  <td>Production commerciale</td>
+                  <td>Surveillance et optimisation</td>
+                </tr>
+
+                <tr>
+                  <td>1 500 utilisateurs simultanés</td>
+                  <td>Montée en charge avancée</td>
+                  <td>Tests obligatoires</td>
+                </tr>
+
+                <tr>
+                  <td>1 500 spectateurs live simultanés</td>
+                  <td>Owncast avec CDN ou forte bande passante</td>
+                  <td>Coût très variable</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout" style="margin-top: 16px;">
+            L’objectif professionnel est une utilisation stable et testée. Il
+            ne faut jamais promettre une absence absolue de bogues.
+          </div>
+        </div>
+      </section>
+
+      <!-- MODÈLE FINANCIER -->
+
+      <section id="financial">
+        <div class="grid cols-2">
+          <div class="card">
+            <h3>
+              Revenus potentiels de l’écosystème
+            </h3>
+
+            <div class="table-wrapper">
+              <table>
+                <tbody>
+                  <tr>
+                    <td>Abonnements créateurs</td>
+                    <td>14,99 $ / 65,99 $</td>
+                  </tr>
+
+                  <tr>
+                    <td>Abonnement public premium</td>
+                    <td>1,99 $</td>
+                  </tr>
+
+                  <tr>
+                    <td>Billets virtuels</td>
+                    <td>Variable</td>
+                  </tr>
+
+                  <tr>
+                    <td>Services 360</td>
+                    <td>À la carte ou par forfait</td>
+                  </tr>
+
+                  <tr>
+                    <td>Licences et outils</td>
+                    <td>Mensuel ou annuel</td>
+                  </tr>
+
+                  <tr>
+                    <td>Commissions et booking</td>
+                    <td>Selon l’entente</td>
+                  </tr>
+
+                  <tr>
+                    <td>Commandites et partenaires</td>
+                    <td>Selon le mandat</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>
+              Revenus exclus du partage Luc / David
+            </h3>
+
+            <p>
+              À moins d’une entente distincte, les éléments suivants demeurent
+              exclus :
+            </p>
+
+            <div class="table-wrapper">
+              <table>
+                <tbody>
+                  <tr>
+                    <td>Revenus propres à L’Étiquette</td>
+                    <td class="danger">Exclus</td>
+                  </tr>
+
+                  <tr>
+                    <td>Revenus propres à Trovici</td>
+                    <td class="danger">Exclus</td>
+                  </tr>
+
+                  <tr>
+                    <td>Revenus propres à Hedliner</td>
+                    <td class="danger">Exclus</td>
+                  </tr>
+
+                  <tr>
+                    <td>Services humains de Meyden</td>
+                    <td class="danger">Exclus</td>
+                  </tr>
+
+                  <tr>
+                    <td>Production vidéo indépendante</td>
+                    <td class="danger">Exclue</td>
+                  </tr>
+
+                  <tr>
+                    <td>Propriété intellectuelle</td>
+                    <td class="danger">Exclue</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top: 16px;">
+          <h3>
+            Formule de calcul
+          </h3>
+
+          <div class="callout">
+            Revenus admissibles réellement encaissés − taxes − remboursements −
+            frais de paiement − coûts directs approuvés − frais
+            d’infrastructure = revenu net admissible.
+
+            <br />
+            <br />
+
+            Une portion déterminée de ce revenu net forme l’enveloppe des
+            contributeurs. Cette enveloppe est répartie au prorata des
+            contributions admissibles et limitée par un plafond contractuel.
+          </div>
+        </div>
+      </section>
+
+      <!-- FEUILLE DE ROUTE -->
+
+      <section id="roadmap">
+        <div class="card">
+          <div class="label accent">
+            Plan applicable
+          </div>
+
+          <h3>
+            Feuille de route de mise en production
+          </h3>
+
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="dot">1</div>
+
+              <div>
+                <strong>Inventaire réel</strong>
+
+                <p>
+                  Factures DigitalOcean, ressources actives, plans Vercel,
+                  domaines, bases de données, Owncast, stockage et sauvegardes.
+                </p>
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="dot">2</div>
+
+              <div>
+                <strong>Architecture commune</strong>
+
+                <p>
+                  Authentification centrale, API Meyden, base de données
+                  commune, séparation logique des modules et des rôles.
+                </p>
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="dot">3</div>
+
+              <div>
+                <strong>Monétisation</strong>
+
+                <p>
+                  Comptes gratuits et payants, forfaits, paiements,
+                  facturation, espaces partenaires et rapports.
+                </p>
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="dot">4</div>
+
+              <div>
+                <strong>Sécurité et conformité</strong>
+
+                <p>
+                  Gestion des accès, confidentialité, protection des données,
+                  sauvegardes, journalisation et reprise.
+                </p>
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="dot">5</div>
+
+              <div>
+                <strong>Tests de capacité</strong>
+
+                <p>
+                  Tests de charge progressifs, optimisation, scénarios
+                  d’incident et surveillance.
+                </p>
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="dot">6</div>
+
+              <div>
+                <strong>Déploiement commercial</strong>
+
+                <p>
+                  Lancement contrôlé, suivi des revenus, mesure des retombées
+                  et ajustement de l’infrastructure.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-note">
+          Cette application est une démonstration stratégique interne. Les
+          montants sont modifiables et doivent être remplacés par les factures,
+          contrats et revenus réels avant toute signature.
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- FENÊTRE D’INFORMATION -->
+
+  <div
+    class="modal"
+    id="modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modalTitle"
+    onclick="closeModalFromBackdrop(event)"
+  >
+    <div class="modal-box">
+      <button
+        class="close"
+        type="button"
+        aria-label="Fermer"
+        onclick="closeModal()"
+      >
+        ×
+      </button>
+
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+  <script>
+    "use strict";
+
+    const navButtons = Array.from(
+      document.querySelectorAll("nav button[data-section]")
+    );
+
+    const sections = Array.from(
+      document.querySelectorAll("main section")
+    );
+
+    const moduleData = {
+      monitor: {
+        title: "Meyden Monitor",
+        type: "Propriété Meyden",
+        text:
+          "Moteur de circulation et de mesure des contenus. Il regroupe les profils, les abonnements, les statistiques, Tuned On et les mécanismes de reconnaissance des retombées."
+      },
+
+      live: {
+        title: "Meyden Live Tool / Owncast",
+        type: "Propriété Meyden + moteur libre",
+        text:
+          "Le Live Tool gère l’expérience de diffusion. Owncast reçoit le flux vidéo, tandis que Meyden organise les événements, les accès, les billets, les rediffusions et les statistiques."
+      },
+
+      crm: {
+        title: "Meyden Natural CRM",
+        type: "Propriété Meyden",
+        text:
+          "Mémoire relationnelle de l’écosystème : importation, nettoyage, qualification, suivi, segmentation et exportation vers les autres modules."
+      },
+
+      service: {
+        title: "Service 360 Meyden × L’Étiquette",
+        type: "Partenariat encadré",
+        text:
+          "Porte commerciale et opérationnelle : diagnostic, soumission, production, livrables, publication, suivi et transformation des besoins en mandats."
+      },
+
+      pofino: {
+        title: "Pofino",
+        type: "Projet Meyden × Trovici",
+        text:
+          "Plateforme spécialisée pour les entreprises, les opérations, la cartographie, les documents, les rapports, les photos, les comptes administratifs et les abonnements."
+      },
+
+      catalogue: {
+        title: "Catalogue Meyden × Trovici",
+        type: "Partenariat encadré",
+        text:
+          "Répertoire des services, talents, entreprises, expertises, forfaits et possibilités de jumelage."
+      },
+
+      hedliner: {
+        title: "Hedliner",
+        type: "Partenaire externe",
+        text:
+          "Infrastructure externe intégrée pour le booking, les salles, les festivals, les candidatures et les occasions de scène."
+      },
+
+      radio: {
+        title: "Radio LP Web",
+        type: "Partenaire externe",
+        text:
+          "Partenaire média externe pour les entrevues, les chroniques, les émissions, la diffusion musicale et la redirection d’audience vers Meyden."
+      }
+    };
+
+    const cycleSteps = [
+      {
+        title: "Entrée dans l’écosystème",
+        text:
+          "Un artiste crée un profil gratuit et dépose une chanson, des photos et un objectif de spectacle."
+      },
+
+      {
+        title: "Qualification CRM",
+        text:
+          "Le Natural CRM classe le profil comme artiste actif, identifie son territoire, ses besoins et ses partenaires potentiels."
+      },
+
+      {
+        title: "Activation Service 360",
+        text:
+          "Un diagnostic transforme son besoin en mandat : image, contenu, diffusion, booking et accompagnement."
+      },
+
+      {
+        title: "Production et catalogue",
+        text:
+          "Le projet mobilise les ressources Meyden, L’Étiquette, Trovici et les collaborateurs autorisés."
+      },
+
+      {
+        title: "Diffusion multicanal",
+        text:
+          "Le contenu passe dans le Monitor, le Live Tool, Radio LP Web, L’Étiquette et les passerelles Hedliner."
+      },
+
+      {
+        title: "Conversion économique",
+        text:
+          "Des billets, des abonnements, des services et des occasions professionnelles sont générés."
+      },
+
+      {
+        title: "Mesure des retombées",
+        text:
+          "Les revenus, contenus, preuves, statistiques et occasions futures sont archivés et réutilisés."
+      }
+    ];
+
+    let cycleIndex = -1;
+    let cycleTimer = null;
+
+    function goTo(sectionId) {
+      sections.forEach((section) => {
+        section.classList.toggle(
+          "active",
+          section.id === sectionId
+        );
+      });
+
+      navButtons.forEach((button) => {
+        button.classList.toggle(
+          "active",
+          button.dataset.section === sectionId
+        );
+      });
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+
+      if (sectionId === "simulator") {
+        calculateInvestment();
+      }
+    }
+
+    navButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        goTo(button.dataset.section);
+      });
+    });
+
+    function moduleInfo(key) {
+      const data = moduleData[key];
+
+      if (!data) {
+        return;
+      }
+
+      const content = document.getElementById("modalContent");
+
+      content.innerHTML = `
+        <div class="label accent">
+          ${escapeHtml(data.type)}
+        </div>
+
+        <h2 id="modalTitle">
+          ${escapeHtml(data.title)}
+        </h2>
+
+        <p>
+          ${escapeHtml(data.text)}
+        </p>
+      `;
+
+      document.getElementById("modal").classList.add("open");
+    }
+
+    function closeModal() {
+      document.getElementById("modal").classList.remove("open");
+    }
+
+    function closeModalFromBackdrop(event) {
+      if (event.target.id === "modal") {
+        closeModal();
+      }
+    }
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeModal();
+      }
+    });
+
+    function runCycle() {
+      resetCycle();
+
+      cycleIndex = 0;
+      showCycleStep();
+
+      cycleTimer = window.setInterval(() => {
+        cycleIndex += 1;
+
+        if (cycleIndex >= cycleSteps.length) {
+          window.clearInterval(cycleTimer);
+          cycleTimer = null;
+          return;
+        }
+
+        showCycleStep();
+      }, 1600);
+    }
+
+    function showCycleStep() {
+      const step = cycleSteps[cycleIndex];
+
+      if (!step) {
+        return;
+      }
+
+      document.getElementById("cycleTitle").textContent =
+        `Étape ${cycleIndex + 1} — ${step.title}`;
+
+      document.getElementById("cycleText").textContent =
+        step.text;
+
+      document.getElementById("cycleBar").style.width =
+        `${((cycleIndex + 1) / cycleSteps.length) * 100}%`;
+
+      const cards = Array.from(
+        document.querySelectorAll("#flow .flow-step")
+      );
+
+      cards.forEach((element, index) => {
+        const isActive = index === cycleIndex;
+
+        element.style.borderColor =
+          isActive ? "var(--gold)" : "var(--line)";
+
+        element.style.boxShadow =
+          isActive
+            ? "0 0 0 3px rgba(224, 184, 90, 0.08)"
+            : "none";
+      });
+    }
+
+    function resetCycle() {
+      if (cycleTimer !== null) {
+        window.clearInterval(cycleTimer);
+      }
+
+      cycleTimer = null;
+      cycleIndex = -1;
+
+      document.getElementById("cycleTitle").textContent =
+        "Prêt à commencer";
+
+      document.getElementById("cycleText").textContent =
+        "Cliquez sur « Lancer la simulation » pour voir un cycle réaliste se dérouler étape par étape.";
+
+      document.getElementById("cycleBar").style.width =
+        "0%";
+
+      const cards = Array.from(
+        document.querySelectorAll("#flow .flow-step")
+      );
+
+      cards.forEach((element) => {
+        element.style.borderColor = "var(--line)";
+        element.style.boxShadow = "none";
+      });
+    }
+
+    function money(value) {
+      const safeValue =
+        Number.isFinite(value) ? value : 0;
+
+      return new Intl.NumberFormat("fr-CA", {
+        style: "currency",
+        currency: "CAD",
+        maximumFractionDigits: 0
+      }).format(safeValue);
+    }
+
+    function percent(value) {
+      const safeValue =
+        Number.isFinite(value) ? value : 0;
+
+      return new Intl.NumberFormat("fr-CA", {
+        style: "percent",
+        maximumFractionDigits: 1
+      }).format(safeValue);
+    }
+
+    function getNumber(id, fallback = 0) {
+      const element = document.getElementById(id);
+      const value = Number(element.value);
+
+      if (!Number.isFinite(value)) {
+        return fallback;
+      }
+
+      return value;
+    }
+
+    function updatePoolOutput() {
+      const value = getNumber("poolPercent", 20);
+
+      document.getElementById("poolOut").value =
+        `${value} %`;
+    }
+
+    function calculateInvestment() {
+      const lucMonthly =
+        Math.max(0, getNumber("lucMonthly"));
+
+      const davidMonthly =
+        Math.max(0, getNumber("davidMonthly"));
+
+      const months =
+        Math.max(1, getNumber("months", 1));
+
+      const meydenMonthly =
+        Math.max(0, getNumber("meydenMonthly"));
+
+      const grossRevenue =
+        Math.max(0, getNumber("grossRevenue"));
+
+      const directCosts =
+        Math.max(0, getNumber("directCosts"));
+
+      const poolPercent =
+        Math.min(
+          100,
+          Math.max(0, getNumber("poolPercent"))
+        ) / 100;
+
+      const capMultiple =
+        Math.max(0, getNumber("capMultiple", 1));
+
+      const lucTotal =
+        lucMonthly * months;
+
+      const davidTotal =
+        davidMonthly * months;
+
+      const outsideContributionTotal =
+        lucTotal + davidTotal;
+
+      const lucRatio =
+        outsideContributionTotal > 0
+          ? lucTotal / outsideContributionTotal
+          : 0;
+
+      const davidRatio =
+        outsideContributionTotal > 0
+          ? davidTotal / outsideContributionTotal
+          : 0;
+
+      const netMonthly =
+        Math.max(0, grossRevenue - directCosts);
+
+      const monthlyPool =
+        netMonthly * poolPercent;
+
+      const totalPool =
+        monthlyPool * months;
+
+      const lucCap =
+        lucTotal * capMultiple;
+
+      const davidCap =
+        davidTotal * capMultiple;
+
+      const lucPotential =
+        Math.min(
+          totalPool * lucRatio,
+          lucCap
+        );
+
+      const davidPotential =
+        Math.min(
+          totalPool * davidRatio,
+          davidCap
+        );
+
+      const totalNet =
+        netMonthly * months;
+
+      const meydenKeep =
+        Math.max(
+          0,
+          totalNet - lucPotential - davidPotential
+        );
+
+      const monthlyInfrastructureCoverage =
+        lucMonthly + davidMonthly + meydenMonthly;
+
+      document.getElementById("lucTotal").textContent =
+        money(lucTotal);
+
+      document.getElementById("davidTotal").textContent =
+        money(davidTotal);
+
+      document.getElementById("netMonthly").textContent =
+        money(netMonthly);
+
+      document.getElementById("poolMonthly").textContent =
+        money(monthlyPool);
+
+      document.getElementById("lucShare").textContent =
+        percent(lucRatio);
+
+      document.getElementById("davidShare").textContent =
+        percent(davidRatio);
+
+      document.getElementById("lucReturn").textContent =
+        money(lucPotential);
+
+      document.getElementById("davidReturn").textContent =
+        money(davidPotential);
+
+      document.getElementById("lucCap").textContent =
+        money(lucCap);
+
+      document.getElementById("davidCap").textContent =
+        money(davidCap);
+
+      document.getElementById("meydenKeep").textContent =
+        money(meydenKeep);
+
+      const conclusion =
+        netMonthly <= 0
+          ? "Aucun revenu net admissible : aucune participation financière ne serait distribuée pour cette période."
+          : `Les contributions mensuelles couvrent ${money(
+              monthlyInfrastructureCoverage
+            )} d’infrastructure. L’enveloppe est calculée sur les revenus nets réellement encaissés et demeure plafonnée.`;
+
+      document.getElementById("simConclusion").textContent =
+        conclusion;
+    }
+
+    function loadScenario(type) {
+      if (type === "conservative") {
+        document.getElementById("lucMonthly").value = 50;
+        document.getElementById("davidMonthly").value = 50;
+        document.getElementById("months").value = 12;
+        document.getElementById("meydenMonthly").value = 250;
+        document.getElementById("grossRevenue").value = 1200;
+        document.getElementById("directCosts").value = 900;
+        document.getElementById("poolPercent").value = 15;
+        document.getElementById("capMultiple").value = 1.5;
+      } else {
+        document.getElementById("lucMonthly").value = 100;
+        document.getElementById("davidMonthly").value = 100;
+        document.getElementById("months").value = 18;
+        document.getElementById("meydenMonthly").value = 400;
+        document.getElementById("grossRevenue").value = 7500;
+        document.getElementById("directCosts").value = 3000;
+        document.getElementById("poolPercent").value = 20;
+        document.getElementById("capMultiple").value = 1.5;
+      }
+
+      updatePoolOutput();
+      calculateInvestment();
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    [
+      "lucMonthly",
+      "davidMonthly",
+      "months",
+      "meydenMonthly",
+      "grossRevenue",
+      "directCosts",
+      "poolPercent",
+      "capMultiple"
+    ].forEach((id) => {
+      document
+        .getElementById(id)
+        .addEventListener("input", () => {
+          updatePoolOutput();
+          calculateInvestment();
+        });
+    });
+
+    updatePoolOutput();
+    calculateInvestment();
+  </script>
+</body>
+</html>
